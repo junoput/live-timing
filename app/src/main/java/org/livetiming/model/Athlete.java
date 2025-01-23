@@ -2,7 +2,7 @@ package org.livetiming.model;
 
 import java.time.Year;
 
-public class Competitor {
+public class Athlete {
     private final String firstName;
     private final String lastName;
     private final Gender gender;
@@ -11,14 +11,14 @@ public class Competitor {
     private Category category;
     private CompetitorStatus status;
 
-    public Competitor(int startNumber, String firstName, String lastName, Gender gender, String club, Year birthYear, CompetitorStatus status) {
+    public Athlete(String firstName, String lastName, Gender gender, String club, Year birthYear, CompetitorStatus status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.club = club;
         this.birthYear = birthYear;
         this.status = status;
-        
+
         if (birthYear != null) {
             this.category = Category.getCategoryByBirthYear(birthYear);
         }
