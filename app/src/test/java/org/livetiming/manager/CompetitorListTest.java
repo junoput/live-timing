@@ -60,6 +60,7 @@ class CompetitorListTest {
         when(mockCompetitor4.getCategory()).thenReturn(Category.BABY);
         when(mockCompetitor4.getStatus()).thenReturn(CompetitorStatus.NOT_STARTED);
         when(mockCompetitor4.getName()).thenReturn("Eve");
+        when(mockCompetitor4.getStartNumber()).thenReturn(2);
 
         when(mockCompetitor5.getGender()).thenReturn(Gender.MALE);
         when(mockCompetitor5.getCategory()).thenReturn(Category.U14);
@@ -90,6 +91,7 @@ class CompetitorListTest {
         when(mockCompetitor10.getCategory()).thenReturn(Category.BABY);
         when(mockCompetitor10.getStatus()).thenReturn(CompetitorStatus.NOT_STARTED);
         when(mockCompetitor10.getName()).thenReturn("Ivy");
+        when(mockCompetitor10.getStartNumber()).thenReturn(0);
     }
 
     @Test
@@ -258,8 +260,15 @@ class CompetitorListTest {
         competitorList.addCompetitor(mockCompetitor8);
         competitorList.addCompetitor(mockCompetitor9);
         competitorList.addCompetitor(mockCompetitor10);
+
         // Assert that it starts from the first in the youngest female category
         assertEquals(mockCompetitor4, competitorList.getNextCompetitor());
+
+        // Change the status of mockCompetitor4 to ON_COURSE
+        when(mockCompetitor4.getStatus()).thenReturn(CompetitorStatus.ON_COURSE);
+
+        // Assert that it now returns the next competitor in order
+        assertEquals(mockCompetitor10, competitorList.getNextCompetitor());
     }
 
 //    @Test
