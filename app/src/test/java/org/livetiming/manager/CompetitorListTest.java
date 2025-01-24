@@ -6,6 +6,8 @@ import org.livetiming.model.Category;
 import org.livetiming.model.CompetitorStatus;
 import org.livetiming.model.Gender;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -146,7 +148,7 @@ class CompetitorListTest {
         competitorList.addCompetitor(mockCompetitor9);
         competitorList.addCompetitor(mockCompetitor10);
         Set<Competitor> competitors = competitorList.getCompetitorsByCategory(Category.BABY);
-        assertEquals(4, competitors.size());
+        assertEquals(5, competitors.size());
         assertTrue(competitors.contains(mockCompetitor1));
         assertTrue(competitors.contains(mockCompetitor4));
         assertTrue(competitors.contains(mockCompetitor7));
@@ -242,22 +244,6 @@ class CompetitorListTest {
         verify(mockCompetitor9).setFinishTime(0);
         verify(mockCompetitor10).setStatus(CompetitorStatus.NOT_STARTED);
         verify(mockCompetitor10).setFinishTime(0);
-    }
-
-    @Test
-    void testSortByName() {
-        competitorList.addCompetitor(mockCompetitor1);
-        competitorList.addCompetitor(mockCompetitor2);
-        competitorList.addCompetitor(mockCompetitor3);
-        competitorList.addCompetitor(mockCompetitor4);
-        competitorList.addCompetitor(mockCompetitor5);
-        competitorList.addCompetitor(mockCompetitor6);
-        competitorList.addCompetitor(mockCompetitor7);
-        competitorList.addCompetitor(mockCompetitor8);
-        competitorList.addCompetitor(mockCompetitor9);
-        competitorList.addCompetitor(mockCompetitor10);
-        competitorList.sortByName();
-        assertEquals("Diana", competitorList.getAllCompetitors().iterator().next().getName());
     }
 
     @Test

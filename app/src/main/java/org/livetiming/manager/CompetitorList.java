@@ -58,22 +58,10 @@ public class CompetitorList {
      * @return a Set of all competitors sorted as youngest female category, youngest male category, ...
      */
     public Set<Competitor> getAllCompetitors() {
-        List<Category> sortedCategories = new ArrayList<>(maleCompetitorsByCategory.keySet());
-        sortedCategories.addAll(femaleCompetitorsByCategory.keySet());
-        sortedCategories = sortedCategories.stream().distinct().sorted().collect(Collectors.toList());
-
-        Set<Competitor> sortedCompetitors = new LinkedHashSet<>();
-
-        for (Category category : sortedCategories) {
-            if (femaleCompetitorsByCategory.containsKey(category)) {
-                sortedCompetitors.addAll(femaleCompetitorsByCategory.get(category));
-            }
-            if (maleCompetitorsByCategory.containsKey(category)) {
-                sortedCompetitors.addAll(maleCompetitorsByCategory.get(category));
-            }
-        }
-
-        return sortedCompetitors;
+        Set<Competitor> allCompetitors = new HashSet<>();
+        allCompetitors.addAll(getCompetitors(maleCompetitorsByCategory));
+        allCompetitors.addAll(getCompetitors(femaleCompetitorsByCategory));
+        return allCompetitors;
     }
 
     /**
@@ -84,6 +72,14 @@ public class CompetitorList {
         Set<Competitor> competitors = new HashSet<>(maleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
         competitors.addAll(femaleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
         return competitors;
+    }
+
+    public Set<Competitor> getMaleCompetitorsByCategory(Category category) {
+        return new HashSet<>(maleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
+    }
+
+    public Set<Competitor> getFemaleCompetitorsByCategory(Category category) {
+        return new HashSet<>(femaleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
     }
 
     /**
@@ -122,33 +118,26 @@ public class CompetitorList {
     }
 
     /**
-     * Sort all categories by name
+     * @return the next competitor that has not started yet (status NOT_STARTED) in order of start number
+     * If competitor doesn't have a start number, they start at the end of the category
+     * Starting from the youngest female category, then youngest male category, ...
      */
-    public void sortByName() {
-        Comparator<Competitor> nameComparator = Comparator.comparing(Competitor::getName);
-
-        maleCompetitorsByCategory.values().forEach(set -> {
-            List<Competitor> sortedList = new ArrayList<>(set);
-            sortedList.sort(nameComparator);
-            set.clear();
-            set.addAll(sortedList);
-        });
-
-        femaleCompetitorsByCategory.values().forEach(set -> {
-            List<Competitor> sortedList = new ArrayList<>(set);
-            sortedList.sort(nameComparator);
-            set.clear();
-            set.addAll(sortedList);
-        });
-    }
-
     public Competitor getNextCompetitor() {
-        for (Competitor competitor : getAllCompetitors()) {
-            if (competitor.getStatus() == CompetitorStatus.NOT_STARTED) {
-                return competitor;
+        List<Category> sortedCategories = new ArrayList<>(femaleCompetitorsByCategory.keySet());
+        sortedCategories.addAll(maleCompetitorsByCategory.keySet());
+        sortedCategories = sortedCategories.stream().distinct().sorted().collect(Collectors.toList());
+
+        for (Category category : sortedCategories) {
+            Competitor nextCompetitor = getNextCompetitorFromCategory(femaleCompetitorsByCategory, category);
+            if (nextCompetitor != null) {
+                return nextCompetitor;
+            }
+            nextCompetitor = getNextCompetitorFromCategory(maleCompetitorsByCategory, category);
+            if (nextCompetitor != null) {
+                return nextCompetitor;
             }
         }
-        return null;
+        return null; // No competitor found with status NOT_STARTED
     }
 
     /**
@@ -196,5 +185,23 @@ public class CompetitorList {
         return map.values().stream()
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * @param competitorsByCategory the map of competitors by category
+     * @param category              the category to filter by
+     * @return the next competitor that has not started yet (status NOT_STARTED) in order of start number
+     */
+    private Competitor getNextCompetitorFromCategory(Map<Category, Set<Competitor>> competitorsByCategory, Category category) {
+        if (competitorsByCategory.containsKey(category)) {
+            List<Competitor> competitors = new ArrayList<>(competitorsByCategory.get(category));
+            competitors.sort(Comparator.comparingInt(Competitor::getStartNumber));
+            for (Competitor competitor : competitors) {
+                if (competitor.getStatus() == CompetitorStatus.NOT_STARTED) {
+                    return competitor;
+                }
+            }
+        }
+        return null;
     }
 }
