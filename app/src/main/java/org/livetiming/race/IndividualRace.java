@@ -21,7 +21,6 @@ public class IndividualRace {
         this.name = name;
         this.competitors = new CompetitorList(competitors);
         this.competitors.resetCompetitorsStatus();
-        this.competitors.sortByName();
         this.competitors.assignStartNumbersByCategory();
     }
 
