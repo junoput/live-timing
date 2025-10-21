@@ -191,11 +191,16 @@ public class CompetitorList {
      * @param competitorsByCategory the map of competitors by category
      * @param category              the category to filter by
      * @return the next competitor that has not started yet (status NOT_STARTED) in order of start number
+     * If competitor doesn't have a start number (0), they start at the end of the category
      */
     private Competitor getNextCompetitorFromCategory(Map<Category, Set<Competitor>> competitorsByCategory, Category category) {
         if (competitorsByCategory.containsKey(category)) {
             List<Competitor> competitors = new ArrayList<>(competitorsByCategory.get(category));
-            competitors.sort(Comparator.comparingInt(Competitor::getStartNumber));
+            competitors.sort((c1, c2) -> {
+                int startNumber1 = c1.getStartNumber() == 0 ? Integer.MAX_VALUE : c1.getStartNumber();
+                int startNumber2 = c2.getStartNumber() == 0 ? Integer.MAX_VALUE : c2.getStartNumber();
+                return Integer.compare(startNumber1, startNumber2);
+            });
             for (Competitor competitor : competitors) {
                 if (competitor.getStatus() == CompetitorStatus.NOT_STARTED) {
                     return competitor;
