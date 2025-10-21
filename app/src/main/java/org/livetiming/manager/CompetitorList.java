@@ -57,7 +57,7 @@ public class CompetitorList {
     /**
      * @return a Set of all competitors sorted as youngest female category, youngest male category, ...
      */
-    public Set<Competitor> getCompetitors() {
+    public Set<Competitor> getAllCompetitors() {
         List<Category> sortedCategories = new ArrayList<>(maleCompetitorsByCategory.keySet());
         sortedCategories.addAll(femaleCompetitorsByCategory.keySet());
         sortedCategories = sortedCategories.stream().distinct().sorted().collect(Collectors.toList());
@@ -91,7 +91,7 @@ public class CompetitorList {
      * @return the Set of competitors of the specified status
      */
     public Set<Competitor> getCompetitorsByStatus(CompetitorStatus status) {
-        return getAllCompetitors(maleCompetitorsByCategory).stream()
+        return getAllCompetitors().stream()
                 .filter(competitor -> competitor.getStatus() == status)
                 .collect(Collectors.toSet());
     }
@@ -101,21 +101,21 @@ public class CompetitorList {
      * @return the Set of competitors of the specified gender
      */
     public Set<Competitor> getCompetitorsByGender(Gender gender) {
-        return new HashSet<>(getAllCompetitors(getGenderMap(gender)));
+        return new HashSet<>(getCompetitors(getGenderMap(gender)));
     }
 
     /**
      * @return the number of competitors
      */
     public int getCompetitorCount() {
-        return getCompetitors().size();
+        return getAllCompetitors().size();
     }
 
     /**
      * Resets the list of competitors by setting status to not started and finish time to 0
      */
     public void resetCompetitorsStatus() {
-        getCompetitors().forEach(competitor -> {
+        getAllCompetitors().forEach(competitor -> {
             competitor.setStatus(CompetitorStatus.NOT_STARTED);
             competitor.setFinishTime(0);
         });
@@ -143,7 +143,7 @@ public class CompetitorList {
     }
 
     public Competitor getNextCompetitor() {
-        for (Competitor competitor : getCompetitors()) {
+        for (Competitor competitor : getAllCompetitors()) {
             if (competitor.getStatus() == CompetitorStatus.NOT_STARTED) {
                 return competitor;
             }
@@ -192,7 +192,7 @@ public class CompetitorList {
      * @param map the map of competitors by category
      * @return a Set of all competitors
      */
-    private Set<Competitor> getAllCompetitors(Map<Category, Set<Competitor>> map) {
+    private Set<Competitor> getCompetitors(Map<Category, Set<Competitor>> map) {
         return map.values().stream()
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
