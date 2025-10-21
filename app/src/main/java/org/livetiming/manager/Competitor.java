@@ -1,6 +1,7 @@
 package org.livetiming.manager;
 
 import org.livetiming.model.Athlete;
+import org.livetiming.model.CompetitorStatus;
 
 public class Competitor extends Athlete {
     private int startNumber;
@@ -14,6 +15,16 @@ public class Competitor extends Athlete {
 
     public static Competitor fromAthlete(Athlete athlete, int startNumber) {
         return new Competitor(athlete, startNumber);
+    }
+
+    public void start() {
+        // Set the status of the competitor to ON_COURSE
+        this.setStatus(CompetitorStatus.ON_COURSE);
+    }
+    public void finish(long finishTime) {
+        // Set the status of the competitor to FINISHED
+        this.setStatus(CompetitorStatus.FINISHED);
+        this.finishTime = finishTime;
     }
 
     // Additional methods specific to Competitor
