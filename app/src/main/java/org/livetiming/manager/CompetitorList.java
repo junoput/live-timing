@@ -7,15 +7,27 @@ import org.livetiming.model.Gender;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Manages a list of competitors, grouped by category and gender.
+ * Provides methods for adding, removing, and retrieving competitors based on various criteria.
+ */
 public class CompetitorList {
     private final Map<Category, Set<Competitor>> maleCompetitorsByCategory;
     private final Map<Category, Set<Competitor>> femaleCompetitorsByCategory;
 
+    /**
+     * Constructs an empty CompetitorList.
+     */
     public CompetitorList() {
         this.maleCompetitorsByCategory = new HashMap<>();
         this.femaleCompetitorsByCategory = new HashMap<>();
     }
 
+    /**
+     * Constructs a CompetitorList and initializes it with a set of competitors.
+     *
+     * @param competitors the set of competitors to initialize the list with
+     */
     public CompetitorList(Set<Competitor> competitors) {
         this();
         for (Competitor competitor : competitors) {
@@ -27,7 +39,8 @@ public class CompetitorList {
     // Public methods
     //====================================================================================================
     /**
-     * Adds a competitor to the list
+     * Adds a competitor to the list.
+     * The competitor is added to the appropriate gender and category group.
      *
      * @param competitor the competitor to add
      */
@@ -38,7 +51,8 @@ public class CompetitorList {
     }
 
     /**
-     * Removes a competitor from the list
+     * Removes a competitor from the list.
+     * If the category becomes empty after removal, it is removed from the map.
      *
      * @param competitor the competitor to remove
      */
@@ -55,7 +69,10 @@ public class CompetitorList {
     }
 
     /**
-     * @return a Set of all competitors sorted as youngest female category, youngest male category, ...
+     * Retrieves all competitors in the list.
+     * Competitors are sorted by category and gender, starting with the youngest female category.
+     *
+     * @return a Set of all competitors
      */
     public Set<Competitor> getAllCompetitors() {
         Set<Competitor> allCompetitors = new HashSet<>();
@@ -65,8 +82,10 @@ public class CompetitorList {
     }
 
     /**
+     * Retrieves competitors of a specific category.
+     *
      * @param category the category to filter by
-     * @return the Set of competitors of the specified category
+     * @return the Set of competitors in the specified category
      */
     public Set<Competitor> getCompetitorsByCategory(Category category) {
         Set<Competitor> competitors = new HashSet<>(maleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
@@ -74,17 +93,31 @@ public class CompetitorList {
         return competitors;
     }
 
+    /**
+     * Retrieves male competitors of a specific category.
+     *
+     * @param category the category to filter by
+     * @return the Set of male competitors in the specified category
+     */
     public Set<Competitor> getMaleCompetitorsByCategory(Category category) {
         return new HashSet<>(maleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
     }
 
+    /**
+     * Retrieves female competitors of a specific category.
+     *
+     * @param category the category to filter by
+     * @return the Set of female competitors in the specified category
+     */
     public Set<Competitor> getFemaleCompetitorsByCategory(Category category) {
         return new HashSet<>(femaleCompetitorsByCategory.getOrDefault(category, new HashSet<>()));
     }
 
     /**
+     * Retrieves competitors with a specific status.
+     *
      * @param status the status to filter by
-     * @return the Set of competitors of the specified status
+     * @return the Set of competitors with the specified status
      */
     public Set<Competitor> getCompetitorsByStatus(CompetitorStatus status) {
         return getAllCompetitors().stream()
@@ -93,14 +126,29 @@ public class CompetitorList {
     }
 
     /**
+     * Retrieves the competitors currently on course.
+     *
+     * @return a Set of competitors with the status ON_COURSE
+     */
+    public Set<Competitor> getCompetitorsOnCourse() {
+        return getAllCompetitors().stream()
+            .filter(competitor -> competitor.getStatus() == CompetitorStatus.ON_COURSE)
+            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(Competitor::getStartTime))));
+    }
+
+    /**
+     * Retrieves competitors of a specific gender.
+     *
      * @param gender the gender to filter by
-     * @return the Set of competitors of the specified gender
+     * @return the Set of competitors with the specified gender
      */
     public Set<Competitor> getCompetitorsByGender(Gender gender) {
         return new HashSet<>(getCompetitors(getGenderMap(gender)));
     }
 
     /**
+     * Retrieves the total number of competitors in the list.
+     *
      * @return the number of competitors
      */
     public int getCompetitorCount() {
@@ -108,7 +156,8 @@ public class CompetitorList {
     }
 
     /**
-     * Resets the list of competitors by setting status to not started and finish time to 0
+     * Resets the status and finish time of all competitors in the list.
+     * All competitors are marked as NOT_STARTED, and their finish times are set to 0.
      */
     public void resetCompetitorsStatus() {
         getAllCompetitors().forEach(competitor -> {
@@ -118,9 +167,10 @@ public class CompetitorList {
     }
 
     /**
-     * @return the next competitor that has not started yet (status NOT_STARTED) in order of start number
-     * If competitor doesn't have a start number, they start at the end of the category
-     * Starting from the youngest female category, then youngest male category, ...
+     * Retrieves the next competitor who has not started yet.
+     * Competitors are selected in order of start number, starting with the youngest female category.
+     *
+     * @return the next competitor with status NOT_STARTED, or null if none are found
      */
     public Competitor getNextCompetitor() {
         List<Category> sortedCategories = new ArrayList<>(femaleCompetitorsByCategory.keySet());
@@ -141,8 +191,8 @@ public class CompetitorList {
     }
 
     /**
-     * Assigns start numbers to competitors by category, starting from females of the youngest category
-     * then youngest male category, then second-youngest females,... until the oldest male category
+     * Assigns start numbers to competitors by category.
+     * Start numbers are assigned sequentially, starting with the youngest female category.
      */
     public void assignStartNumbersByCategory() {
         List<Category> sortedCategories = new ArrayList<>(maleCompetitorsByCategory.keySet());
@@ -170,15 +220,19 @@ public class CompetitorList {
     //====================================================================================================
 
     /**
+     * Retrieves the map of competitors grouped by category for a specific gender.
+     *
      * @param gender the gender to filter by
-     * @return the map of competitors by category
+     * @return the map of competitors grouped by category
      */
     private Map<Category, Set<Competitor>> getGenderMap(Gender gender) {
         return gender == Gender.MALE ? maleCompetitorsByCategory : femaleCompetitorsByCategory;
     }
 
     /**
-     * @param map the map of competitors by category
+     * Retrieves all competitors from a map of competitors grouped by category.
+     *
+     * @param map the map of competitors grouped by category
      * @return a Set of all competitors
      */
     private Set<Competitor> getCompetitors(Map<Category, Set<Competitor>> map) {
@@ -188,10 +242,12 @@ public class CompetitorList {
     }
 
     /**
-     * @param competitorsByCategory the map of competitors by category
+     * Retrieves the next competitor with status NOT_STARTED from a specific category.
+     * Competitors are sorted by start number, with those without a start number placed at the end.
+     *
+     * @param competitorsByCategory the map of competitors grouped by category
      * @param category              the category to filter by
-     * @return the next competitor that has not started yet (status NOT_STARTED) in order of start number
-     * If competitor doesn't have a start number (0), they start at the end of the category
+     * @return the next competitor with status NOT_STARTED, or null if none are found
      */
     private Competitor getNextCompetitorFromCategory(Map<Category, Set<Competitor>> competitorsByCategory, Category category) {
         if (competitorsByCategory.containsKey(category)) {
