@@ -178,6 +178,33 @@ class CompetitorListTest {
     }
 
     @Test
+    void testGetCompetitorsOnCourseOrder() {
+        // Add competitors to the list
+        competitorList.addCompetitor(mockCompetitor1);
+        competitorList.addCompetitor(mockCompetitor2);
+        competitorList.addCompetitor(mockCompetitor3);
+
+        // Set their status to ON_COURSE
+        when(mockCompetitor2.getStatus()).thenReturn(CompetitorStatus.ON_COURSE);
+        when(mockCompetitor1.getStatus()).thenReturn(CompetitorStatus.ON_COURSE);
+        when(mockCompetitor3.getStatus()).thenReturn(CompetitorStatus.ON_COURSE);
+
+        // Set their start times
+        when(mockCompetitor2.getStartTime()).thenReturn(10L);
+        when(mockCompetitor1.getStartTime()).thenReturn(20L);
+        when(mockCompetitor3.getStartTime()).thenReturn(30L);
+
+        // Retrieve competitors on course
+        Set<Competitor> competitorsOnCourse = competitorList.getCompetitorsOnCourse();
+
+        // Verify the order of competitors based on start time
+        List<Competitor> competitorsList = new ArrayList<>(competitorsOnCourse);
+        assertEquals(mockCompetitor2, competitorsList.get(0)); // Start time 1000
+        assertEquals(mockCompetitor1, competitorsList.get(1)); // Start time 500
+        assertEquals(mockCompetitor3, competitorsList.get(2)); // Start time 1500
+    }
+
+    @Test
     void testGetAllCompetitorsByGender() {
         competitorList.addCompetitor(mockCompetitor1);
         competitorList.addCompetitor(mockCompetitor2);
@@ -270,29 +297,4 @@ class CompetitorListTest {
         // Assert that it now returns the next competitor in order
         assertEquals(mockCompetitor10, competitorList.getNextCompetitor());
     }
-
-//    @Test
-//    void testAssignStartNumbersByCategory() {
-//        competitorList.addCompetitor(mockCompetitor1);
-//        competitorList.addCompetitor(mockCompetitor2);
-//        competitorList.addCompetitor(mockCompetitor3);
-//        competitorList.addCompetitor(mockCompetitor4);
-//        competitorList.addCompetitor(mockCompetitor5);
-//        competitorList.addCompetitor(mockCompetitor6);
-//        competitorList.addCompetitor(mockCompetitor7);
-//        competitorList.addCompetitor(mockCompetitor8);
-//        competitorList.addCompetitor(mockCompetitor9);
-//        competitorList.addCompetitor(mockCompetitor10);
-//        competitorList.assignStartNumbersByCategory();
-//        verify(mockCompetitor1).setStartNumber(1);
-//        verify(mockCompetitor2).setStartNumber(2);
-//        verify(mockCompetitor3).setStartNumber(3);
-//        verify(mockCompetitor4).setStartNumber(4);
-//        verify(mockCompetitor5).setStartNumber(5);
-//        verify(mockCompetitor6).setStartNumber(6);
-//        verify(mockCompetitor7).setStartNumber(7);
-//        verify(mockCompetitor8).setStartNumber(8);
-//        verify(mockCompetitor9).setStartNumber(9);
-//        verify(mockCompetitor10).setStartNumber(10);
-//    }
 }
